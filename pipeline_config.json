@@ -1,0 +1,56 @@
+{
+  "pipeline_name": "customer-360-cqrs-ifrs9",
+  "target_schema": "prd.sand_crc_estudos_ifrs9",
+  "source_table": "prd.s_stbr_dri_ifr.tb_output_modellica_ifrs9_cred",
+  "architecture_pattern": "CQRS",
+  "pipeline_configuration": {
+    "mode": "TRIGGERED",
+    "cluster_config": {
+      "auto_scaling": true,
+      "min_workers": 1,
+      "max_workers": 8,
+      "instance_type": "i3.xlarge"
+    },
+    "advanced_settings": {
+      "pipelines.trigger.interval": "1 hour",
+      "spark.databricks.delta.optimizeWrite.enabled": "true",
+      "spark.databricks.delta.autoCompact.enabled": "true",
+      "spark.databricks.delta.preview.enabled": "true",
+      "spark.databricks.io.cache.enabled": "true"
+    }
+  },
+  "data_quality": {
+    "expectations_enabled": true,
+    "monitoring_enabled": true,
+    "alert_on_failure": true
+  },
+  "materialized_views": {
+    "dashboard_refresh": "0 * * * *",
+    "executive_refresh": "0 8 * * *", 
+    "risk_monitoring_refresh": "0 */4 * * *",
+    "ml_features_refresh": "0 2 * * *"
+  },
+  "governance": {
+    "unity_catalog_enabled": true,
+    "data_lineage_tracking": true,
+    "column_level_permissions": true,
+    "data_classification": true
+  },
+  "performance_optimization": {
+    "z_order_columns": ["customer_id", "business_date"],
+    "partition_columns": ["business_date"],
+    "bloom_filter_columns": ["customer_id", "contract_uuid"]
+  },
+  "monitoring": {
+    "data_freshness_threshold_hours": 6,
+    "pipeline_failure_alerts": true,
+    "performance_tracking": true,
+    "data_quality_alerts": true
+  },
+  "deployment": {
+    "environment": "production",
+    "deployment_mode": "automated",
+    "rollback_enabled": true,
+    "testing_required": true
+  }
+}
